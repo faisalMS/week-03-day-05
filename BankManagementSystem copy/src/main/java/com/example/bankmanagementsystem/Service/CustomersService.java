@@ -3,6 +3,7 @@ package com.example.bankmanagementsystem.Service;
 
 import com.example.bankmanagementsystem.DTO.BankDTO;
 import com.example.bankmanagementsystem.DTO.CustomerDetailsDTO;
+import com.example.bankmanagementsystem.Exception.InvalidIDException;
 import com.example.bankmanagementsystem.Model.Bank;
 import com.example.bankmanagementsystem.Model.CustomerDetails;
 import com.example.bankmanagementsystem.Model.Customers;
@@ -50,9 +51,10 @@ public class CustomersService {
     }
 
     public Object withdraws(Integer customerId, Integer amount) {
-        Customers customers = customersRepository.findById(customerId).get();
+        Customers customers = customersRepository.findById(customerId).
+                orElseThrow(()-> new InvalidIDException("Invalid customerId !"));
         if (customers.getCustomerDetails().getBalance() < amount){
-            return "don't have money";
+           throw new RuntimeException("don't have money");
         }
         customers.getCustomerDetails().setBalance(customers.getCustomerDetails().getBalance() - amount);
         customersRepository.save(customers);
@@ -60,7 +62,8 @@ public class CustomersService {
     }
 
     public Object deposits(Integer customerId, Integer amount) {
-        Customers customers = customersRepository.findById(customerId).get();
+        Customers customers = customersRepository.findById(customerId).
+                orElseThrow(()-> new InvalidIDException("Invalid customerId !"));
         customers.getCustomerDetails().setBalance(customers.getCustomerDetails().getBalance() + amount);
         customersRepository.save(customers);
         return "deposits completed";
